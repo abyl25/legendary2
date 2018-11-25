@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response.Status;
 import models.Post;
 import models.User;
 import utils.AddPostRequest;
+import utils.EditPostRequest;
 
 import com.google.gson.Gson;
 import com.mysql.cj.api.jdbc.Statement;
@@ -104,7 +105,7 @@ public class PostService {
 		System.out.println("add post req body: " + id);
 		Gson gson = new Gson();
 		String json = "";
-		
+						
 		//int post_id = Integer.parseInt(id);
 		try {
 			String query = "DELETE FROM posts WHERE id='" + id + "'";
@@ -117,4 +118,34 @@ public class PostService {
 		
 		return Response.ok().build();
 	}
+	
+	@POST
+	@Path("/edit")
+	public Response editPost(String body) {
+		System.out.println("edit post req: " + body);
+		Gson gson = new Gson();
+		EditPostRequest editPostReq = gson.fromJson(body, EditPostRequest.class);
+		System.out.print("edit post id: " + editPostReq.id + " | ");
+		//System.out.println("id type: " + editPostReq.id instanceof String);
+		System.out.println("edit post title: " + editPostReq.title);
+		System.out.println("edit post body: " + editPostReq.body);
+				
+		
+//		User user = (User) request.getSession().getAttribute("user");
+//		int user_id = user.id;		
+//		int post_id = Integer.parseInt(editPostReq.id);
+		
+		try {
+			String query = "UPDATE posts SET title = '" + editPostReq.title + "', body = '" + editPostReq.body + 
+					"' WHERE id = " + editPostReq.id + "";
+			PreparedStatement prepStatement = conn.prepareStatement(query);
+			prepStatement.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return Response.ok().build();
+	}
+	
 }
