@@ -35,6 +35,9 @@ if(session.getAttribute("user") == null) {
 	response.sendRedirect("index.jsp");	
 }
 
+User user = (User) session.getAttribute("user");
+
+
 Connection conn = null;
 ArrayList<Post> lst = null;
 
@@ -110,8 +113,11 @@ try {
 					" at <span class='text-primary' style=''>" + p.time +"</span> <hr>"); %></p>
 					<p post-body='<% out.println(p.id);%>'> <% out.println(p.body); %></p>
 					
-					<input type='button' class='btn btn-danger delete-post' value='delete' data-id='<% out.println(p.id);%>'>
-					<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.println(p.id);%>'>
+					<% if(user.fname.equals(p.fname) && user.lname.equals(p.lname)) { %>
+						<input type='button' class='btn btn-danger delete-post' value='delete' data-id='<% out.println(p.id);%>'>
+						<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.println(p.id);%>'>					
+					<% } %>
+					
 				</li>
 				<br>
 			<%} %>	
@@ -188,9 +194,7 @@ try {
 			});
 			
 		});
-		
-		
-		
+						
 		// DELETE POST
 		$('.delete-post').on('click', function(e) {
 			var postid = $(this).attr('data-id');
@@ -211,10 +215,10 @@ try {
 			
 		});
 		
+		// POST FEED
 		$('#post-btn').on('click', function(e) {			
 			var postTitle = $('#post-title').val();
-			var postBody = $('#post-body').val();
-			
+			var postBody = $('#post-body').val();	
 			
 			if (postTitle.length == 0 && postBody.length == 0) {
 				alert("Enter title and body of post!");
