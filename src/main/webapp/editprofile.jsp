@@ -38,7 +38,7 @@ if(session.getAttribute("user") == null) {
 					<h3 class="text-center my-3 pb-3">Edit profile</h3>
 					<!--  <h3 class="card-title">Card title</h3> -->
 					
-					<form action="editprofile" method="post">
+					<form action="editprofile" method="post" id="edit-form">
 						<div class="form-group">	
 							<input class="form-control" type="text" name="profile-age" placeholder="Age">			
 						</div>						
@@ -79,7 +79,7 @@ if(session.getAttribute("user") == null) {
 							<textarea class="form-control" name="profile-bio" placeholder="Bio Description"></textarea>			
 						</div>
 						
-						<input class="btn btn btn-success btn-block" type="submit" name="profile-edit" value="Edit">
+						<input class="btn btn btn-success btn-block" id="submit-edit-form-btn" type="submit" name="profile-edit" value="Edit">
 												
 					</form>
 				</div>
@@ -89,6 +89,21 @@ if(session.getAttribute("user") == null) {
 	</div>
 	<br>
 	
+	<script type="text/javascript">
+	$(document).ready(function (){
+		$('#submit-edit-form-btn').on('click', function (event) {					
+			$("form#edit-form :input").each(function(){
+				var input = $(this).val();
+				console.log("input value: ", input);
+				if (input.length == 0) {
+					event.preventDefault();
+					alert("Error! Fill in all fields!");
+					return false;
+				}			
+			});
+		});
+	});
+	</script>
 
 </body>
 </html>

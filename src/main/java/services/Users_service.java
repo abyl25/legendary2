@@ -47,11 +47,9 @@ public class Users_service {
         Gson gson = new Gson();  
         String json = "";
         
-//        Integer user_id_obj = (Integer) request.getSession().getAttribute("user_id");
-//		int user_id = 0;
-//		if (user_id_obj != null) {
-//			user_id = user_id_obj.intValue();
-//		}
+        User user = (User)request.getSession().getAttribute("user");
+		int user_id = user.id;
+		
         
 //      UsersRequest usersRequest = gson.fromJson(searchText, UsersRequest.class);
 //        int user_id = usersRequest.id;
@@ -63,7 +61,7 @@ public class Users_service {
         try {
 			List<User> user_list = new ArrayList<User>();			 
 			
-			String query = "SELECT * FROM users WHERE first_name='"+ searchText +"'"; 
+			String query = "SELECT * FROM users WHERE first_name='"+ searchText +"' AND id <> " + user_id + ""; 
 			PreparedStatement prepStatement = conn.prepareStatement(query);
 			ResultSet rs = prepStatement.executeQuery(query);
 			
