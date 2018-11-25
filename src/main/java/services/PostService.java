@@ -30,6 +30,7 @@ import models.Post;
 import models.User;
 import utils.AddPostRequest;
 import utils.EditPostRequest;
+import utils.LikePostRequest;
 
 import com.google.gson.Gson;
 import com.mysql.cj.api.jdbc.Statement;
@@ -139,6 +140,34 @@ public class PostService {
 			String query = "UPDATE posts SET title = '" + editPostReq.title + "', body = '" + editPostReq.body + 
 					"' WHERE id = " + editPostReq.id + "";
 			PreparedStatement prepStatement = conn.prepareStatement(query);
+			prepStatement.execute();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return Response.ok().build();
+	}
+	
+	@POST
+	@Path("/like")
+	public Response likePost(String body) {
+		System.out.println("like post req: " + body);
+		Gson gson = new Gson();
+		
+		LikePostRequest lpr = gson.fromJson(body, LikePostRequest.class);
+		System.out.println("lpr.post_id: " + lpr.post_id);
+		System.out.println("lpr.post_author_id: " + lpr.post_author_id);
+		System.out.println("lpr.like_author_id: " + lpr.like_author_id);
+		
+		try {
+//			"INSERT INTO posts (user_id, title, body, time) VALUES (?, ?, ?, NOW())"
+			String query = "INSERT INTO post_likes (post_id, post_author_id, like_author_id) VALUES (?, ?, ?)";
+			
+			PreparedStatement prepStatement = conn.prepareStatement(query);
+			prepStatement.setInt(1, lpr.post_id);
+			prepStatement.setInt(2, lpr.post_author_id);	
+			prepStatement.setInt(3, lpr.like_author_id);
 			prepStatement.execute();
 			
 		} catch (SQLException e) {

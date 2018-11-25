@@ -7,8 +7,6 @@
 <title>Legendary</title>
 
 
- 
-
 </head>
 <body>
 	

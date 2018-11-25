@@ -42,6 +42,7 @@ response.setHeader("Expires", "0");
 
 if(session.getAttribute("user") == null) {
 	response.sendRedirect("index.jsp");	
+	return;
 }
 %>
 
@@ -115,8 +116,8 @@ if(session.getAttribute("user") == null) {
 					items = res;
 					sessionStorage.setItem("jobs_list", JSON.stringify(res));
 										
-					var users_arr = JSON.parse(sessionStorage.getItem("jobs_list"));
-					users_arr.forEach(function(e) {
+					//var users_arr = JSON.parse(sessionStorage.getItem("jobs_list"));
+					items.forEach(function(e) {
 						$("#search-result").append("<li class='list-group-item w-75 li-click'>Title: <a href='#' class='a-click'>"+ 
 								e.title+"</a>&nbsp;&nbsp;&nbsp; Category: <a href='#' class=''>" + 
 								e.vacancy_type +"</a> &nbsp;&nbsp;&nbsp; Company: <a href='#'>"+ e.company_name + "</a>"+
@@ -128,6 +129,15 @@ if(session.getAttribute("user") == null) {
 	
 		});
 		
+		items.forEach(function(e) {
+			$("#search-result").append("<li class='list-group-item w-75 li-click'>Title: <a href='#' class='a-click'>"+ 
+					e.title+"</a>&nbsp;&nbsp;&nbsp; Category: <a href='#' class=''>" + 
+					e.vacancy_type +"</a> &nbsp;&nbsp;&nbsp; Company: <a href='#'>"+ e.company_name + "</a>"+
+				"<hr><p>Description</p>"+
+				"<p class='pt-1 mt-1'>"+ e.description+"</p> Address: " + e.address + "</li>");
+		});	
+		
+		/*
 		if (sessionStorage.getItem("jobs_list")) {
 			var users_arr = JSON.parse(sessionStorage.getItem("jobs_list"));
 			users_arr.forEach(function(e) {
@@ -140,7 +150,7 @@ if(session.getAttribute("user") == null) {
 				);
 			});		
 		}
-		
+		*/
 	});
 	</script>
 	<!--  -->		

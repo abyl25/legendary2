@@ -20,6 +20,7 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="database.DbConnection" %>
+<%@ page import="models.Profile" %>
 <jsp:include page="header.jsp"/>
 <%-- --%>
 
@@ -41,6 +42,8 @@ if (request.getParameter("id") != null) {
 
 Connection conn = null;
 String fname =""; String lname= ""; String email="";
+Profile profile = new Profile();
+int flag = 0;
 
 try {		 		
 	Class.forName("com.mysql.jdbc.Driver");
@@ -62,6 +65,24 @@ try {
 		email = rs.getString("email");
 	}
 	
+	String query2 = "SELECT * FROM profile WHERE user_id='"+ id +"'"; 
+	PreparedStatement prepStatement2 = conn.prepareStatement(query2);
+	ResultSet rs2 = prepStatement2.executeQuery(query2);
+	
+	while (rs2.next()) {	
+		flag = 1;
+		profile.first_name = rs2.getString("first_name");
+		profile.first_name = rs2.getString("last_name");
+		profile.age = rs2.getInt("age");
+		profile.education = rs2.getString("education");
+		profile.major = rs2.getString("major");
+		profile.profession = rs2.getString("profession");
+		profile.experience = rs2.getString("experience");
+		profile.skills = rs2.getString("skills");
+		profile.links = rs2.getString("links");
+		profile.bio = rs2.getString("bio");				
+	}
+	
 } catch(SQLException e) {
 	System.out.println(e);
 } catch(ClassNotFoundException e) {
@@ -76,8 +97,12 @@ try {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="profile-img">
-                            <!--<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/> -->
+                            <!--
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/> 
                             <img src="https://support.plymouth.edu/kb_images/Yammer/default.jpeg">
+                            -->
+                            <img src="https://cdn2.vectorstock.com/i/1000x1000/23/81/default-avatar-profile-icon-vector-18942381.jpg">
+                            
                             <!--   
                             <div class="file btn btn-lg btn-primary">
                                 Change Photo
@@ -89,19 +114,28 @@ try {
                     <div class="col-md-6">
                         <div class="profile-head">
                                     <h5>                                      
-                                        <% out.println(fname + " " + lname);                                        		
+                                        <% 
+                                        //if (flag == 1) {
+                                       	out.println(fname + " " + lname);                                        		
+                                        //}
                                         %>                                       
                                     </h5>
                                     <h6>
-                                        Web Developer                                        
+                                        <% 
+                                        if (flag == 1) {
+                                        	out.println(profile.profession); 
+                                       	}
+                                        %>                                       
                                     </h6>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
                                 </li>
+                                <!--  
                                 <li class="nav-item">
                                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Timeline</a>
                                 </li>
+                                -->
                             </ul>
                         </div>
                     </div>
@@ -117,12 +151,23 @@ try {
                     <div class="col-md-4">
                         <div class="profile-work">
                             <p>WORK LINK</p>
+                            <% 
+                            if (flag == 1) {
+                            	out.println("<a style='color: #0062cc;' href='"+ profile.links +"'>" + profile.links + "</a>");                           	
+                            }  
+                            %>
+                            
                             <!-- 
                             <a href="">Website Link</a><br/>
                             <a href="">Bootsnipp Profile</a><br/>
                             <a href="">Bootply Profile</a>
                             -->
                             <p>SKILLS</p>
+                            <% 
+                            if (flag == 1) {
+                            	out.println("<p style='color: #0062cc;'>" + profile.skills + "</p>");                           	
+                            }  
+                            %>
                             <!-- 
                             <a href="">Web Designer</a><br/>
                             <a href="">Web Developer</a><br/>
@@ -140,7 +185,11 @@ try {
                                                 <label>Name</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p><% out.println(fname+" "+ lname); %></p>
+                                                <p><% 
+                                                //if (flag == 1) {
+                                                	out.println(fname +" "+ lname); 
+                                                //}
+                                                %></p>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -148,7 +197,12 @@ try {
                                                 <label>Email</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p><% out.println(email); %></p>
+                                                <p><% 
+                                                //if (flag == 1) {
+                                                	out.println(email);
+                                                //}
+                                                 
+                                                %></p>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -156,9 +210,14 @@ try {
                                                 <label>Age</label>
                                             </div>
                                             <div class="col-md-6">                                            	
-                                                <p></p>
+                                                <p><% 
+                                                if (flag == 1) {
+                                                	out.println(profile.age);
+                                                }
+                                                %></p>
                                             </div>
                                         </div>
+                                        <!--  
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label>Current Occupation</label>
@@ -167,42 +226,69 @@ try {
                                                 <p></p>
                                             </div>
                                         </div>
+                                        -->
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label>Education</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p></p>
-                                                
-
+                                                <p> <% 
+                                                if (flag == 1) {
+                                                	out.println(profile.education);
+                                                }
+                                                %> </p>
                                             </div>
                                         </div>
-                                        <div class="row">
+                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label>Phone</label>
+                                                <label>Major</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p></p>
+                                                <p> <% 
+                                                if (flag == 1) {
+                                                	out.println(profile.major);
+                                                }
+                                                %> </p>
                                             </div>
                                         </div>
+                                        <!--  -->
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label>Profession</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p></p>
+                                                <p><% 
+                                                if (flag == 1) {
+                                                	out.println(profile.profession);
+                                                }
+                                                %> </p>
                                             </div>
                                         </div>
-                            </div>
-                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label>Experience</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p></p>
+                                                <p><% 
+                                                if (flag == 1) {
+                                                	out.println(profile.experience);
+                                                }
+                                                %></p>
                                             </div>
                                         </div>
+                                        <div class="row">
+		                                    <div class="col-md-12">
+		                                        <label>Bio</label><br/>
+		                                        <p> <% 
+                                                if (flag == 1) {
+                                                	out.println(profile.bio);
+                                                }
+                                                %> </p>
+		                                    </div>
+		                                </div>
+                            </div>
+                            <!-- 
+                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">  
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label>Hourly Rate</label>
@@ -234,14 +320,10 @@ try {
                                             <div class="col-md-6">
                                                 <p></p>
                                             </div>
-                                        </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label>Your Bio</label><br/>
-                                        <p>Your detail description</p>
-                                    </div>
-                                </div>
+                                        </div>                                      
                             </div>
+                             -->
+                             
                         </div>
                     </div>
                 </div>

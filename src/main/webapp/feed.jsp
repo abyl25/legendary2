@@ -6,6 +6,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Feed</title>
+<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.5.0/css/all.css' integrity='sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU' 
+ crossorigin='anonymous'>
 </head>
 <body>
 <jsp:include page="header.jsp"/>
@@ -22,6 +24,7 @@
 <%@ page import="models.User" %>
 <%@ page import="models.Profile" %>
 <%@ page import="models.Post" %>
+<%@ page import="models.PostLike" %>
 <%@ page import="database.DbConnection" %>
 
 <!--  
@@ -33,13 +36,13 @@ p.time = dateStr;
 <% 
 if(session.getAttribute("user") == null) {
 	response.sendRedirect("index.jsp");	
+	return;
 }
 
 User user = (User) session.getAttribute("user");
-
-
 Connection conn = null;
 ArrayList<Post> lst = null;
+ArrayList<PostLike> like_list = null;
 
 try {		 		
 	Class.forName("com.mysql.jdbc.Driver");
@@ -78,7 +81,21 @@ try {
 		lst.add(p);
 	}
 	
-	request.setAttribute("lst", lst);
+	String query2 = "SELECT * FROM post_likes";
+	PreparedStatement prepStatement2 = conn.prepareStatement(query2);
+	ResultSet rs2 = prepStatement.executeQuery(query2);
+	like_list = new ArrayList<PostLike>();
+	
+	while (rs2.next()) {
+		PostLike pl = new PostLike();
+		pl.like_id = rs2.getInt("id");
+		pl.post_id = rs2.getInt("post_id");
+		pl.post_author_id = rs2.getInt("post_author_id");
+		pl.like_author_id = rs2.getInt("like_author_id");		
+		like_list.add(pl);
+	}
+	
+	//request.setAttribute("lst", lst);
 	
 }catch(SQLException e) {
 	System.out.println(e);
@@ -112,30 +129,65 @@ try {
 					"</span> by <a href='#' class='text-primary'>" + p.fname + " " + p.lname + "</a>" + 
 					" at <span class='text-primary' style=''>" + p.time +"</span> <hr>"); %></p>
 					<p post-body='<% out.println(p.id);%>'> <% out.println(p.body); %></p>
+										
+					 <!--  
+					 <i class='fas fa-heart' style='font-size:18px'></i> 
+					 -->
+					<button type="button" class="btn btn-info like-post" post-id='<%out.println(p.id);%>' user-id='<%out.println(p.user_id);%>' 
+						like-author-id='<%out.println(user.id);%>'>
+						<i class='fas fa-heart' style='font-size:15px'></i>
+					</button>
+					<span class="like-count" post-id='<%out.println(p.id);%>' user-id='<%out.println(p.user_id);%>' 
+					      like-author-id='<%out.println(user.id);%>'>0</span> 
 					
-					<% if(user.fname.equals(p.fname) && user.lname.equals(p.lname)) { %>
+					<% if(p.user_id == user.id) { %>					
 						<input type='button' class='btn btn-danger delete-post' value='delete' data-id='<% out.println(p.id);%>'>
-						<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.println(p.id);%>'>					
-					<% } %>
+						<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.println(p.id);%>'>											
+					<%  } %>
 					
 				</li>
 				<br>
-			<%} %>	
-			
+			<%} %>				
 		</ul>
-
 	</div>
 	
 	
 	<script type="text/javascript">
 	$(document).ready(function (){
 		$("#post-edit-btn").hide();
+			
+		$('.like-post').on('click', function(e) {
+			let post_id = $(this).attr('post-id').trim();
+			let post_author_id = $(this).attr('user-id').trim();
+			let like_author_id = $(this).attr('like-author-id').trim();
+			
+			console.log("post id: ", post_id);
+			console.log("post author id: ", post_author_id);
+			console.log("like auhtor id: ", like_author_id);
+			
+			post_obj = {};
+			post_obj.post_id = post_id;
+			post_obj.post_author_id = post_author_id;
+			post_obj.like_author_id = like_author_id;
+			
+			$.ajax({
+				type: 'POST',
+				url: 'api/posts/like',
+				dataType: 'json',
+				data: JSON.stringify(post_obj),
+				success : function(res) {
+					location.reload();
+					$("span[post-id='" + post_id + "']").val(1);
+					
+				}
+			});
+		});		
 		
 		$('.edit-post').on('click', function(e) {
-			var post_id = $(this).attr('data-id');
-			var full_title = $("p[post-title='" + post_id + "']").text();
-			var title = full_title.split("by")[0].trim();			
-			var body = $("p[post-body='" + post_id + "']").text().trim();
+			let post_id = $(this).attr('data-id');
+			let full_title = $("p[post-title='" + post_id + "']").text();
+			let title = full_title.split("by")[0].trim();			
+			let body = $("p[post-body='" + post_id + "']").text().trim();
 			
 			console.log("title: ", title);
 			console.log("body: ", body);
@@ -207,8 +259,9 @@ try {
 				dataType: 'json',
 				data: postid,
 				success : function(res) {
-					location.reload();
-					//window.location.href=window.location.href;
+					//location.reload();
+					// window.location.reload(true);
+					window.location.href = window.location.href;
 					//history.go(0);
 				}			
 			});
@@ -248,7 +301,8 @@ try {
 				success : function(res) {
 					console.log('res:');
 					console.log(res);
-					location.reload();
+					//location.reload();
+					window.location.reload(true);
 				}
 			});
 		});

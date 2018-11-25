@@ -35,7 +35,7 @@
 	  	</button>
 		<div class="collapse navbar-collapse col-6" id="navbarNavAltMarkup">
 			<div class="navbar-nav">				
-			  	<a class="nav-item nav-link active mr-3" href="<%=home%>">Home <span class="sr-only">(current)</span></a>	
+			  	<a class="nav-item nav-link active mr-3" href="profile.jsp">My Profile <span class="sr-only">(current)</span></a>	
 			  	<a class="nav-item nav-link text-light mr-2" href="feed.jsp">Feed</a>		  	
 			  	<a class="nav-item nav-link text-light mr-2" href="<%=home + "searchjobs.jsp"%>">Jobs</a>
 			  	<a class="nav-item nav-link text-white" href="<%=home + "searchpeople.jsp"%>">People</a>

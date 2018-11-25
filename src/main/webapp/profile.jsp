@@ -55,7 +55,8 @@ String email = (String)session.getAttribute("email");
 
 <% 
 if(session.getAttribute("user") == null) {
-	response.sendRedirect("index.jsp");	
+	response.sendRedirect("index.jsp");
+	return;
 }
 response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 response.setHeader("Pragma", "no-cache");
@@ -298,7 +299,7 @@ try {
                             </div>
                             <br>
                             <!--  
-                            <form action="upload" method="post" enctype="multipart/form-data">
+                            <form action="upload" method="post" enctype="">
                             	<div class="form-group">
 									<p class='' style='#3a4049;'>Upload CV</p>
 								    <input type="file" name="file">

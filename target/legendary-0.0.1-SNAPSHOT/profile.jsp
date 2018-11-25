@@ -41,15 +41,7 @@ if(session.getAttribute("first_name") == null) {
 	response.sendRedirect("index.jsp");	
 }
 --%>
-<% 
-response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-response.setHeader("Pragma", "no-cache");
-response.setHeader("Expires", "0");
 
-if(session.getAttribute("user") == null) {
-	response.sendRedirect("index.jsp");	
-}
-%>
 <%-- 
 Integer user_id_obj = (Integer)session.getAttribute("user_id");
 int user_id = 0;
@@ -62,7 +54,16 @@ String email = (String)session.getAttribute("email");
 --%>
 
 <% 
+if(session.getAttribute("user") == null) {
+	response.sendRedirect("index.jsp");
+	return;
+}
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+response.setHeader("Pragma", "no-cache");
+response.setHeader("Expires", "0");
+
 User user = (User)session.getAttribute("user");
+
 int user_id = user.id;
 String first_name = user.fname;
 String last_name = user.lname;
@@ -104,10 +105,9 @@ try {
 	System.out.println(e);
 }
 %>
-
 <div class="container emp-profile">
 			 
-			 <a href='editprofile.jsp' class="btn btn-primary float-right">Edit Profile</a>
+			 <a href='editprofile.jsp' class="btn btn-primary float-right">Fill Profile</a>
 			<!-- 
 			<form action="editprofile" method="post" class="">
 			      <input type="submit" value="Edit Profile" class="btn btn-primary float-right" id="edit-btn"> 
@@ -117,8 +117,12 @@ try {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="profile-img">
-                            <!--<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/> -->
-                            <img src="https://support.plymouth.edu/kb_images/Yammer/default.jpeg">
+                            <!--
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt=""/>
+                            <img src="https://support.plymouth.edu/kb_images/Yammer/default.jpeg">                          
+                            -->
+                            <img src="https://cdn2.vectorstock.com/i/1000x1000/23/81/default-avatar-profile-icon-vector-18942381.jpg">
+                            
                             <div class="file btn btn-lg btn-primary">
                                 Change Photo
                                 <input type="file" name="file"/>
@@ -131,15 +135,23 @@ try {
                                         <% out.println(first_name + " " + last_name); %>                                       
                                     </h5>
                                     <h6>
-                                        Web Developer                                      
+                                        <% 
+                                        if (flag == 1) {
+                                        	//String cap = profile.profession.substring(0, 1).toUpperCase() + profile.profession.substring(1);
+                                        	//out.println(cap);
+                                        	out.println(profile.profession);
+                                       	}
+                                        %>                                      
                                     </h6>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#" role="tab" aria-controls="home" aria-selected="true">About</a>
                                 </li>
+                                <!--  
                                 <li class="nav-item">
                                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Timeline</a>
                                 </li>
+                                -->
                             </ul>
                         </div>
                     </div>
@@ -157,7 +169,7 @@ try {
                             <p>WORK LINK</p>
                             <% 
                             if (flag == 1) {
-                            	out.println("<p style='color: #0062cc;'>" + profile.links + "</p>");                           	
+                            	out.println("<a style='color: #0062cc;' href='"+ profile.links +"'>" + profile.links + "</a>");
                             }                            
                             %>
                             <!--
@@ -211,14 +223,16 @@ try {
                                                 %></p>
                                             </div>
                                         </div>
+                                        <!--  
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label>Current Occupation</label>
+                                                <label></label>
                                             </div>
                                             <div class="col-md-6">
-                                                <p></p>
+                                                <p>Occupation</p>
                                             </div>
                                         </div>
+                                        -->
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label>Education</label>
@@ -237,7 +251,9 @@ try {
                                             </div>
                                             <div class="col-md-6">
                                                 <p><% 
+                                                
                                                 if (flag == 1) {
+                                                	//String major1 = profile.major.substring(0, 1).toUpperCase() + profile.major.substring(1);                                                  
                                                 	out.println(profile.major); 
                                                 }
                                                 %></p>
@@ -250,6 +266,7 @@ try {
                                             <div class="col-md-6">
                                                 <p><% 
                                                 if (flag == 1) {
+                                                	//String prof1 = profile.profession.substring(0, 1).toUpperCase() + profile.profession.substring(1);
                                                 	out.println(profile.profession); 
                                                 }
                                                 %></p>
@@ -281,13 +298,15 @@ try {
                                 		</div>
                             </div>
                             <br>
-                            <form action="upload" method="post" enctype="multipart/form-data">
+                            <!--  
+                            <form action="upload" method="post" enctype="">
                             	<div class="form-group">
 									<p class='' style='#3a4049;'>Upload CV</p>
 								    <input type="file" name="file">
 								    <input type="submit" class="form-control btn btn-success w-25 mt-2" value="Upload">
 							    </div>
 							</form>
+                            -->
                             
                             <!-- 
                             <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">

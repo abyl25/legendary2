@@ -23,6 +23,7 @@
 	
 	if(session.getAttribute("user") == null) {
 		response.sendRedirect("index.jsp");	
+		return;
 	}
 	%>
 	
@@ -61,12 +62,13 @@
 					console.log(res);
 					
 					items = res;
-					sessionStorage.setItem("users_list", JSON.stringify(res));
+					//sessionStorage.setItem("users_list", JSON.stringify(res));
 										
-					var users_arr = JSON.parse(sessionStorage.getItem("users_list"));
-					users_arr.forEach(function(e) {
-						$("#search-result").append("<li class='list-group-item w-75'><a href='#' class=''>"+ e.fname+" "+e.lname +"</a>"+
-					"<p class='pt-1 mt-1'>"+ e.email+"</p></li>");
+					//var users_arr = JSON.parse(sessionStorage.getItem("users_list"));
+					items.forEach(function(e) {
+						$("#search-result").append("<li class='list-group-item w-75 li-click'><a href='userprofile.jsp?id="+ e.id +
+							"' class='a-click' data-id='" + e.id + "'>" + 
+							e.fname + " " + e.lname + "</a>" + "<p class='pt-1 mt-1'>" + e.email + "</p></li>");
 					});	
 				}
 			});
@@ -77,6 +79,15 @@
 	        $("#search-result").html("");	        	    		        
 	    }
 		
+		items.forEach(function(e) {
+			$("#search-result").append(
+				"<li class='list-group-item w-75 li-click'><a href='userprofile.jsp?id=" + e.id +
+					"' class='a-click' id='user-profile' data-id='" + e.id +"'>" + 
+					e.fname +" "+ e.lname +"</a>"+ "<p class='pt-1 mt-1'>"+ e.email +"</p></li>"
+			);
+		});	
+		
+		/*
 		if (sessionStorage.getItem("users_list")) {
 			var users_arr = JSON.parse(sessionStorage.getItem("users_list"));
 			users_arr.forEach(function(e) {
@@ -85,11 +96,18 @@
 					e.id +"'>"+ e.fname+" "+e.lname +"</a>"+ "<p class='pt-1 mt-1'>"+ e.email+"</p></li>"
 				);
 			});		
-		}
+		} */
+		
 		<%-- =home--%>
 		// "api/users/" + e.id + "
 		
 		// $('.li-click').on // '#user-profile'
+		
+		/*
+		$(".a-click").mouseover(function(){
+			$("a").attr("href", "http://www.google.com/")
+		});
+		
 		$('.a-click').on('click', function(e) {
 			//e.preventDefault();
 			//console.log(e.target.id);
@@ -112,17 +130,18 @@
 					console.log(user_prof_json);
 					//console.log(typeof user_prof_json);
 				}
-			}); /**/
+			}); 
 			
-			<%  
-			%>
-						
-			window.location.href = '<%= home %>' + 'userprofile.jsp?id=' + user_profile_id;
-		    return false;
-			<%-- =home""  '<%= home %>'  --%>
 			
-		}); /**/	
+			
+			//window.location.href = '' + 'userprofile.jsp?id=' + user_profile_id;
+		    //return false;
+			
+			
+		});  */ 
+		/**/
 		
+		 <%-- =home""  '<%= home %>'  --%>
 	}); // ready function
 	</script>
 	
