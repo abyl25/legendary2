@@ -33,13 +33,12 @@ import javax.ws.rs.core.Response.Status;
 import com.google.gson.Gson;
 
 @Path("/jobs")
-public class Jobs_service {
+public class JobService {
 	Connection conn = null;
 	
-	public Jobs_service() {
+	public JobService() {
     	conn = DbConnection.getConnection();
-    }
-	
+    }	
 	
 	@GET
     @Path("{searchText}")

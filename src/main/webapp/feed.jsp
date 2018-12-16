@@ -124,27 +124,39 @@ try {
 		<ul id="search-result" class="list-group">
 			<h3>Feed</h3>		
 			<%for (Post p: lst){ %>
-				<li class='list-group-item w-75 li-post' data-id='<% out.println(p.id);%>' >
-					<p post-title='<% out.println(p.id);%>'> <% out.println("<span class='text-dark'>" + p.title + 
+				<li class='list-group-item w-75 li-post' section-id='<% out.print(p.id);%>' >
+					<p post-title='<% out.print(p.id);%>'> <% out.print("<span class='text-dark'>" + p.title + 
 					"</span> by <a href='#' class='text-primary'>" + p.fname + " " + p.lname + "</a>" + 
 					" at <span class='text-primary' style=''>" + p.time +"</span> <hr>"); %></p>
-					<p post-body='<% out.println(p.id);%>'> <% out.println(p.body); %></p>
+					<p post-body='<% out.print(p.id);%>'> <% out.print(p.body); %></p>
 										
 					 <!--  
 					 <i class='fas fa-heart' style='font-size:18px'></i> 
 					 -->
-					<button type="button" class="btn btn-info like-post" post-id='<%out.println(p.id);%>' user-id='<%out.println(p.user_id);%>' 
-						like-author-id='<%out.println(user.id);%>'>
+					<button type="button" class="btn btn-info like-post" post-id='<%out.print(p.id);%>' user-id='<%out.print(p.user_id);%>' 
+						like-author-id='<%out.print(user.id);%>'>
 						<i class='fas fa-heart' style='font-size:15px'></i>
-					</button>
-					<span class="like-count" post-id='<%out.println(p.id);%>' user-id='<%out.println(p.user_id);%>' 
-					      like-author-id='<%out.println(user.id);%>'>0</span> 
+					</button>					
+					<span class="like-count" post-id='<%out.print(p.id);%>' user-id='<%out.print(p.user_id);%>' 
+					      like-author-id='<%out.print(user.id);%>'>0
+			        </span> 
+			        <button type="button" class="btn btn-success comment-post" id="comment-post">comment</button>
 					
 					<% if(p.user_id == user.id) { %>					
-						<input type='button' class='btn btn-danger delete-post' value='delete' data-id='<% out.println(p.id);%>'>
-						<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.println(p.id);%>'>											
+						<input type='button' class='btn btn-danger delete-post' value='delete' data-id='<% out.print(p.id);%>'>
+						<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.print(p.id);%>'>											
 					<%  } %>
+					<br>
+					<div class="mt-2" class="comment">
+						<p>Comment post</p>
+						<input type="text" class="form-control comment-text" post-id='<%out.print(p.id);%>' user-id='<%out.print(user.id);%>' placeholder="Write a comment">
+						<input type="button" class="btn mt-2 comment-btn" value="comment" post-id='<%out.print(p.id);%>' user-id='<%out.print(user.id);%>'>
+					</div>
 					
+					<hr>
+					<div id="show-comments-div">
+						<ul id="show-comments-ul" class="list-group"></ul>
+					</div>
 				</li>
 				<br>
 			<%} %>				
@@ -155,7 +167,68 @@ try {
 	<script type="text/javascript">
 	$(document).ready(function (){
 		$("#post-edit-btn").hide();
+		
+		getAllComments();
+		
+		function getAllComments() {
+			$.ajax({
+				type: 'GET',
+				url: 'api/comments/getAll',
+				success : function(res) {
+					console.log("all comments:");
+					console.log(res);
+					items = res;
+					//console.log("res[0]: ");
+					//console.log(res[0].id + " " + res[0].comment);
+					
+					
+					items.forEach(function(e) {
+						let post_id = e.post_id;
+						$("li[section-id='" + post_id + "'] show-comments-ul").append("<li class='list-group-item w-75>" + 
+							e.comment + " by " + e.commenter_id +						
+						"</li>");
+					});
+					
+				}
+			});
+		}
+		
+		//Comment Post
+		$('#search-result').on('click', 'input.comment-btn', function(event) {
+			let target = event.target;			
+			//console.log("clicked:", target);
 			
+			let post_id = $(target).attr('post-id');
+			let commenter_id = $(target).attr('user-id');
+			let comment_text = $(target).prev('input').val();
+			
+			console.log("target post id:", post_id);
+			console.log("target commenter id:", commenter_id);
+			console.log("target input text:", comment_text);
+						
+			if (comment_text.length == 0) {
+				alert("Empty text!");
+				return false;
+			} 
+			
+			comment = {};			
+			comment.post_id = post_id;
+			comment.commenter_id = commenter_id;
+			comment.comment = comment_text;
+			
+			$.ajax({
+				type: 'POST',
+				url: 'api/comments/add',
+				dataType: 'json',
+				data: JSON.stringify(comment),
+				success : function(res) {
+					//location.reload();
+					console.log("res:", res);				
+				}
+			});
+		});
+		
+		// Like Post
 		$('.like-post').on('click', function(e) {
 			let post_id = $(this).attr('post-id').trim();
 			let post_author_id = $(this).attr('user-id').trim();
@@ -176,13 +249,14 @@ try {
 				dataType: 'json',
 				data: JSON.stringify(post_obj),
 				success : function(res) {
-					location.reload();
-					$("span[post-id='" + post_id + "']").val(1);
+					//location.reload();
+					$("span[post-id='" + post_id + "']").text("1");
 					
 				}
 			});
 		});		
 		
+		// Edit Post
 		$('.edit-post').on('click', function(e) {
 			let post_id = $(this).attr('data-id');
 			let full_title = $("p[post-title='" + post_id + "']").text();
@@ -306,6 +380,7 @@ try {
 				}
 			});
 		});
+				
 	});
 	</script>
 	

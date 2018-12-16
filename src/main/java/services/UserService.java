@@ -33,14 +33,13 @@ import com.google.gson.Gson;
 
 
 @Path("/users")
-public class Users_service {
+public class UserService {
 	Connection conn = null;
     
-    public Users_service() {
+    public UserService() {
     	conn = DbConnection.getConnection();
     }
      
-   
     @GET
     @Path("{searchText}")
     public Response getUsers(@PathParam("searchText") String searchText, @Context HttpServletRequest request) {

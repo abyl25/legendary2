@@ -117,7 +117,7 @@ public class PostService {
 			e.printStackTrace();
 		}
 		
-		return Response.ok().build();
+		return Response.ok("deleted").build();
 	}
 	
 	@POST
@@ -146,7 +146,7 @@ public class PostService {
 			e.printStackTrace();
 		}
 		
-		return Response.ok().build();
+		return Response.ok("edited").build();
 	}
 	
 	@POST
@@ -174,7 +174,7 @@ public class PostService {
 			e.printStackTrace();
 		}
 		
-		return Response.ok().build();
+		return Response.ok("liked").build();
 	}
 	
 }

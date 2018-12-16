@@ -1,25 +1,33 @@
 package servlets;
 
 import database.DbConnection;
+
 import javax.servlet.RequestDispatcher;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
+
 import javax.sql.*;
+
 import com.mysql.cj.api.jdbc.Statement;
 import com.mysql.cj.jdbc.Driver;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import models.User;
 
 
 @WebServlet(urlPatterns = { "/signup" })
@@ -123,12 +131,18 @@ public class SignUp extends HttpServlet {
 //		   	       		out.append("Data insertion failed\n");
 //		   	       	}
 		   	       	
+		   	       	User user = new User();
 		   	       	int user_id = 0;
 		   	       	String query3 = "SELECT id FROM users WHERE email='" + email + "'";
 	       	 		ResultSet resultSet3 = statement.executeQuery(query3);
 		       	 	if (resultSet3.next()) {		       	 		
 		       	 		user_id = resultSet3.getInt("id");
-	       	 		}
+		       	 		
+		       	 		user.id = user_id;
+			       	 	user.fname = first_name;
+			   	       	user.lname = second_name;
+			   	       	user.email = email;
+		       	 	}
 		       	 	
 //		   	       	int user_id = 0;
 //			   	    ResultSet rs = statement.getGeneratedKeys();
@@ -138,10 +152,7 @@ public class SignUp extends HttpServlet {
 		   	       	
 		   	       	// Store user data into Session
 		   	       	HttpSession session = request.getSession(true);
-		   	       	session.setAttribute("user_id", user_id);		   	       	
-		   	       	session.setAttribute("first_name", first_name);
-		   	        session.setAttribute("last_name", second_name);
-		   	       	session.setAttribute("email", email);
+		   	       	session.setAttribute("user", user);		   	       			   	       	
 		   	     		   	       	
 		   	       	response.sendRedirect("profile.jsp");
         		} else {

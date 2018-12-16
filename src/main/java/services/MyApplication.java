@@ -20,10 +20,10 @@ public class MyApplication extends Application {
 //    	singletons.add(MultiPartResource.class);
 //    	singletons.add(LoggingFilter.class);
     	
-        singletons.add(new Users_service());
-        singletons.add(new Jobs_service());
+        singletons.add(new UserService());
+        singletons.add(new JobService());
         singletons.add(new PostService());
-        
+        singletons.add(new CommentService());
         //singletons.add(new AdminDeleteUsers());
     }
     
