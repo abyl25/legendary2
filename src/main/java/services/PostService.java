@@ -45,6 +45,44 @@ public class PostService {
     	conn = DbConnection.getConnection();
     }
 	
+	@GET
+	@Path("/getAll")
+	public Response getAllPosts() {
+		Gson gson = new Gson();
+		String json = "";
+		ArrayList<Post> postList = new ArrayList<Post>();
+		
+		try {		 											
+			String query = "SELECT posts.id, posts.user_id, posts.title, posts.body, posts.time, users.first_name, users.last_name "
+					+ "FROM posts INNER JOIN users ON posts.user_id=users.id ORDER BY time DESC"; 			
+			PreparedStatement prepStatement = conn.prepareStatement(query);
+			ResultSet rs = prepStatement.executeQuery(query);
+
+			while (rs.next()) {
+				Post p = new Post();
+				p.id = rs.getInt("id");
+				p.user_id = rs.getInt("user_id");
+				p.title = rs.getString("title");
+				p.body = rs.getString("body");
+				p.fname = rs.getString("first_name");
+				p.lname = rs.getString("last_name");
+				
+				Date date = rs.getTimestamp("time");
+				DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+				df.setTimeZone(TimeZone.getTimeZone("UTC")); // set time zone
+				String dateStr = df.format(date);
+				p.time = dateStr;
+				
+				postList.add(p);
+			}
+			json = gson.toJson(postList);
+			System.out.println("json: " + json);			
+		}catch(SQLException e) {
+			System.out.println(e);
+		}		
+		return Response.ok(json).build();
+	}
+	
 	@POST
 	@Path("/add")
 	public Response addPost(String body) {

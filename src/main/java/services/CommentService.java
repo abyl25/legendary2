@@ -42,9 +42,9 @@ public class CommentService {
 	public Response getComment() {
 		Gson gson = new Gson();  
         String json = "";
-        List<PostComment> comments_list = new ArrayList<PostComment>();
-        
-		try {			
+          
+		try {		
+			List<PostComment> comments_list = new ArrayList<PostComment>();
 			String query = "SELECT * FROM post_comments"; 
 			PreparedStatement prepStatement = conn.prepareStatement(query);
 			ResultSet rs = prepStatement.executeQuery(query);
@@ -62,13 +62,13 @@ public class CommentService {
 				comment.time = dateStr;
 				
 				comments_list.add(comment);
-			}			
+			}	
+			
+			json = gson.toJson(comments_list);
+			System.out.println("All comments json(CommentService): " + json);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		json = gson.toJson(comments_list);
-		System.out.println("All comments json(CommentService): " + json);
 		
 		return Response.ok(json).build();
 	}
