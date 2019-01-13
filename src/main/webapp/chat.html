@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<textarea id="msgTextArea" readonly="readonly" rows="10" cols="45"></textarea><br>
+	<input type="text" id="msgText" size="50">
+	<input type="button" value="send" onclick="sendMessage();">
+	
+	<script type="text/javascript">
+		var websocket = new WebSocket("ws://localhost:8080/legendary/chat");
+		websocket.onmessage = function processMessage(message) {
+			var jsonData = JSON.parse(message.data);
+			if (jsonData.message != null) {
+				msgTextArea.value += jsonData.message + "\n";
+			}
+		}
+		
+		function sendMessage() {
+			websocket.send(msgText.value);
+			msgText.value = ""; // clear text input 
+		}
+	</script>
+</body>
+</html>

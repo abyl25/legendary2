@@ -145,7 +145,7 @@ try {
 					posts = JSON.parse(res);
 					console.log(posts);
 					posts.forEach(function(p) {
-						$("#search-result").append("<li class='list-group-item w-75 li-post' section-id=''>" +
+						$("#search-result").append("<li class='list-group-item w-75 li-post' section-id='"+ p.id +"'>" +
 							"<p post-title='" + p.id + "'>" + p.title + " by <a href='#' class='text-primary'>" + p.fname +" "+ p.lname + "</a>"+ 
 							" at <span class='text-primary' style=''>" + p.time + "</span><hr></p>" +
 							"<p post-body='" + p.id + "'>" + p.body + "</p><br>" +
@@ -180,21 +180,22 @@ try {
 					//console.log("all comments:", res);
 					items = JSON.parse(res);
 					console.log(items);
-
-					items.forEach(function(e) {
-						//console.log(e);
-						let post_id = e.post_id;
-						//console.log('post_id:', post_id);
-						//let w = $("li[section-id='" + post_id + "'] ul");
-						//console.log('ul el:', w);
-						
-						$("li[section-id='" + post_id + "'] ul").append("<li class='list-group-item w-75>" + 
-							e.comment + " by " + e.commenter_id +						
-						"</li>");
-						/**/
-					});
-					
+					//showAllComments();				
 				}
+			});
+		}
+		
+		showAllComments();
+		function showAllComments() {
+			items.forEach(function(e) {
+				//console.log(e);
+				let post_id = e.post_id;
+				console.log('post_id:', post_id);
+				let w = $("li[section-id='" + post_id + "']").find("#show-comments-ul");
+				console.log('ul el:', w);
+				
+				$("li[section-id='" + post_id + "']").find("#show-comments-ul").append("<li class='list-group-item'>AAA" + 						
+				"</li>");
 			});
 		}
 		

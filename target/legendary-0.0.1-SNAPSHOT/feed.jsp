@@ -24,6 +24,7 @@
 <%@ page import="models.User" %>
 <%@ page import="models.Profile" %>
 <%@ page import="models.Post" %>
+<%@ page import="models.PostLike" %>
 <%@ page import="database.DbConnection" %>
 
 <!--  
@@ -32,7 +33,8 @@ DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 String dateStr = df.format(date);
 p.time = dateStr;
 --> 
-<% 
+
+<%-- 
 if(session.getAttribute("user") == null) {
 	response.sendRedirect("index.jsp");	
 	return;
@@ -41,6 +43,7 @@ if(session.getAttribute("user") == null) {
 User user = (User) session.getAttribute("user");
 Connection conn = null;
 ArrayList<Post> lst = null;
+ArrayList<PostLike> like_list = null;
 
 try {		 		
 	Class.forName("com.mysql.jdbc.Driver");
@@ -79,7 +82,21 @@ try {
 		lst.add(p);
 	}
 	
-	request.setAttribute("lst", lst);
+	String query2 = "SELECT * FROM post_likes";
+	PreparedStatement prepStatement2 = conn.prepareStatement(query2);
+	ResultSet rs2 = prepStatement.executeQuery(query2);
+	like_list = new ArrayList<PostLike>();
+	
+	while (rs2.next()) {
+		PostLike pl = new PostLike();
+		pl.like_id = rs2.getInt("id");
+		pl.post_id = rs2.getInt("post_id");
+		pl.post_author_id = rs2.getInt("post_author_id");
+		pl.like_author_id = rs2.getInt("like_author_id");		
+		like_list.add(pl);
+	}
+	
+	//request.setAttribute("lst", lst);
 	
 }catch(SQLException e) {
 	System.out.println(e);
@@ -87,7 +104,7 @@ try {
 	System.out.println(e);
 }
 
-%>
+--%>
 <%--
 <c:forEach items="${posts_lst}" var="item">
        <li>Title: ${item.title}</li>		
@@ -107,45 +124,130 @@ try {
 	<div id="search-result-container" class="container py-3">
 		<ul id="search-result" class="list-group">
 			<h3>Feed</h3>		
-			<%for (Post p: lst){ %>
-				<li class='list-group-item w-75 li-post' data-id='<% out.println(p.id);%>' >
-					<p post-title='<% out.println(p.id);%>'> <% out.println("<span class='text-dark'>" + p.title + 
-					"</span> by <a href='#' class='text-primary'>" + p.fname + " " + p.lname + "</a>" + 
-					" at <span class='text-primary' style=''>" + p.time +"</span> <hr>"); %></p>
-					<p post-body='<% out.println(p.id);%>'> <% out.println(p.body); %></p>
-										
-					 <!--  <i class='fas fa-heart' style='font-size:18px'></i>  -->
-					 
-					<button type="button" class="btn btn-info like-post" post-id='<% out.println(p.id);%>' user-id='<% out.println(user.id);%>'>
-						<i class='fas fa-heart' style='font-size:12px'></i>
-					</button>	
-					<span></span>
-					
-					<% if(p.user_id == user.id) { %>					
-						<input type='button' class='btn btn-danger delete-post' value='delete' data-id='<% out.println(p.id);%>'>
-						<input type='button' class='btn btn-warning edit-post' value='edit' data-id='<% out.println(p.id);%>'>											
-					<%  } %>
-					
-				</li>
-				<br>
-			<%} %>				
+							
 		</ul>
 	</div>
 	
 	
 	<script type="text/javascript">
 	$(document).ready(function (){
-		$("#post-edit-btn").hide();
+		$("#post-edit-btn").hide();		
+		items = [];
+		posts = [];
+		getAllPosts();
+		getAllComments();			
 		
+		function getAllPosts() {
+			$.ajax({
+				type: 'GET',
+				url: 'api/posts/getAll',
+				success : function(res) {
+					posts = JSON.parse(res);
+					console.log(posts);
+					posts.forEach(function(p) {
+						$("#search-result").append("<li class='list-group-item w-75 li-post' section-id='"+ p.id +"'>" +
+							"<p post-title='" + p.id + "'>" + p.title + " by <a href='#' class='text-primary'>" + p.fname +" "+ p.lname + "</a>"+ 
+							" at <span class='text-primary' style=''>" + p.time + "</span><hr></p>" +
+							"<p post-body='" + p.id + "'>" + p.body + "</p><br>" +
+							"<button type='button' class='btn btn-info like-post' post-id='" + p.id + "'" +
+								"user-id='" + p.user_id + "' like-author-id='" + "'" +
+								"<i class='fas fa-heart' style='font-size:15px'></i> " +
+							"</button>" +
+							"<span class='like-count' post-id='"+ p.id +"' user-id='"+ p.user_id +"'>" +
+							"0</span>" +
+							"<button type='button' class='btn btn-success ml-1 comment-post' id='comment-post'>comment</button>" +					
+							
+							"<input type='button' class='btn btn-danger mx-2 delete-post' value='delete' data-id='"+ p.id +"'>" +
+							"<input type='button' class='btn btn-warning edit-post' value='edit' data-id='"+ p.id +"'>" +
+							
+							"<br><div class='comment mt-2'> <p>Comment post</p>" +
+							"<input type='text' class='form-control comment-text' post-id='" + p.id + "' placeholder='Write a comment'>" +
+							"<input type='button' class='btn mt-2 comment-btn' value='comment' post-id='" + p.id + "'>" +
+							"</div><hr>" +
+							
+							"<ul id='show-comments-ul' class='list-group'></ul>" +					
+						"</li><br>");
+					});
+				}
+			});
+		}
+		
+		function getAllComments() {
+			$.ajax({
+				type: 'GET',
+				url: 'api/comments/getAll',
+				success : function(res) {
+					//console.log("all comments:", res);
+					items = JSON.parse(res);
+					console.log(items);
+					//showAllComments();				
+				}
+			});
+		}
+		
+		showAllComments();
+		function showAllComments() {
+			items.forEach(function(e) {
+				//console.log(e);
+				let post_id = e.post_id;
+				console.log('post_id:', post_id);
+				let w = $("li[section-id='" + post_id + "']").find("#show-comments-ul");
+				console.log('ul el:', w);
+				
+				$("li[section-id='" + post_id + "']").find("#show-comments-ul").append("<li class='list-group-item'>AAA" + 						
+				"</li>");
+			});
+		}
+		
+		// Add comment on post
+		$('#search-result').on('click', 'input.comment-btn', function(event) {
+			let target = event.target;			
+			//console.log("clicked:", target);
+			
+			let post_id = $(target).attr('post-id');
+			let commenter_id = $(target).attr('user-id');
+			let comment_text = $(target).prev('input').val();
+			
+			console.log("target post id:", post_id);
+			console.log("target commenter id:", commenter_id);
+			console.log("target input text:", comment_text);
+						
+			if (comment_text.length == 0) {
+				alert("Empty text!");
+				return false;
+			} 
+			
+			comment = {};			
+			comment.post_id = post_id;
+			comment.commenter_id = commenter_id;
+			comment.comment = comment_text;
+			
+			$.ajax({
+				type: 'POST',
+				url: 'api/comments/add',
+				dataType: 'json',
+				data: JSON.stringify(comment),
+				success : function(res) {
+					//location.reload();
+					console.log("res:", res);				
+				}
+			});
+		});
+		
+		// Like Post
 		$('.like-post').on('click', function(e) {
-			let post_id = $(this).attr('post-id');
-			let user_id = $(this).attr('user-id');
+			let post_id = $(this).attr('post-id').trim();
+			let post_author_id = $(this).attr('user-id').trim();
+			let like_author_id = $(this).attr('like-author-id').trim();
+			
 			console.log("post id: ", post_id);
-			console.log("user id: ", user_id);
+			console.log("post author id: ", post_author_id);
+			console.log("like auhtor id: ", like_author_id);
 			
 			post_obj = {};
 			post_obj.post_id = post_id;
-			post_obj.user_id = user_id;
+			post_obj.post_author_id = post_author_id;
+			post_obj.like_author_id = like_author_id;
 			
 			$.ajax({
 				type: 'POST',
@@ -153,14 +255,16 @@ try {
 				dataType: 'json',
 				data: JSON.stringify(post_obj),
 				success : function(res) {
-					location.reload();
+					//location.reload();
+					$("span[post-id='" + post_id + "']").text("1");
+					
 				}
 			});
-		});
+		});		
 		
-		
-		$('.edit-post').on('click', function(e) {
-			let post_id = $(this).attr('data-id');
+		// Edit Post
+		$('#search-result').on('click', '.edit-post', function(e) {
+			let post_id = $('.edit-post').attr('data-id');
 			let full_title = $("p[post-title='" + post_id + "']").text();
 			let title = full_title.split("by")[0].trim();			
 			let body = $("p[post-body='" + post_id + "']").text().trim();
@@ -183,7 +287,7 @@ try {
 		});
 		
 		// Submit edited post 
-		$('#post-edit-btn').on('click', function(e) {
+		$('#search-result').on('click', '#post-edit-btn', function(e) {
 			var postTitle = $('#post-title').val();
 			var postBody = $('#post-body').val();
 			var postId = $(this).attr('post-id').trim();
@@ -224,7 +328,7 @@ try {
 		});
 						
 		// DELETE POST
-		$('.delete-post').on('click', function(e) {
+		$('#search-result').on('click', '.delete-post', function(e) {
 			var postid = $(this).attr('data-id');
 			console.log("id: ", postid);
 			//console.log(typeof postid);
@@ -282,6 +386,7 @@ try {
 				}
 			});
 		});
+				
 	});
 	</script>
 	

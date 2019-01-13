@@ -39,6 +39,8 @@
 			  	<a class="nav-item nav-link text-light mr-2" href="feed.jsp">Feed</a>		  	
 			  	<a class="nav-item nav-link text-light mr-2" href="<%=home + "searchjobs.jsp"%>">Jobs</a>
 			  	<a class="nav-item nav-link text-white" href="<%=home + "searchpeople.jsp"%>">People</a>
+			  	<a class="nav-item nav-link text-white" href="friends.jsp">Friends</a>
+			  	<a class="nav-item nav-link text-white" href="conversation.jsp">Conversation</a>
 			</div>			
 		</div>
 		
